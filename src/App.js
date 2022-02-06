@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './App.css';
 import abi from "./utils/WavePortal.json"
-const CONTRACT_ADDRESS = "0x5f3F6606c92fcffb7760A7db9596610115444020"
+const CONTRACT_ADDRESS = "0x00Fc3c51D2f2A866d1a43C934165f9207Fce51dB"
 
 const checkIfWalletIsConnected = async (setCurrentAccount) => {
   try {
@@ -95,7 +95,7 @@ export default function App() {
       let count = await wavePortalContract.getTotalWaves()
       console.log("retrieved total wave: ", count.toNumber())
 
-      const waveTxn = await wavePortalContract.wave(message)
+      const waveTxn = await wavePortalContract.wave(message, {gasLimit: 300000})
       console.log("mining ..", waveTxn.hash)
 
       count = await wavePortalContract.getTotalWaves()
@@ -108,6 +108,34 @@ export default function App() {
 
   useEffect(() => {
     checkIfWalletIsConnected(setCurrentAccount)
+    let wavePortalContract;
+    const onNewWave = (from, timestamp, message) => {
+      console.log("newWave", from, timestamp, message);
+      setAllWaves(prevState => [
+        ...prevState,
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        }
+      ])
+    }
+
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner()
+      wavePortalContract = new ethers.Contract(CONTRACT_ADDRESS,abi.abi, signer)
+
+      wavePortalContract.on("NewWave", onNewWave)
+    }
+
+    return () => {
+      if (wavePortalContract) {
+        wavePortalContract.off("NewWave", onNewWave)
+      }
+    }
+
+
   }, [])
 
   useEffect(() => {
@@ -127,7 +155,7 @@ export default function App() {
         👋 Hey there!
         </div>
         <div className="bio">
-          I am farza and I worked on self-driving cars so that's pretty cool right? Connect your Ethereum wallet and wave at me!
+          I am yasek. Connect your Ethereum wallet and wave at me!
           <br/>
           your address: {currentAccout && currentAccout.slice(0,10)}
         </div>
