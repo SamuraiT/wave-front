@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './App.css';
 import abi from "./utils/WavePortal.json"
-const CONTRACT_ADDRESS = "0x08631332b5977ab92BA4B5329c77c69f4caEb349"
+const CONTRACT_ADDRESS = "0x5f3F6606c92fcffb7760A7db9596610115444020"
 
 const checkIfWalletIsConnected = async (setCurrentAccount) => {
   try {
